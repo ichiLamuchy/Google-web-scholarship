@@ -74,9 +74,16 @@ if (reg.installing)
       reg.installing.addEventlistener('statechange', function (){
         if (this.state == 'installed'){
           // update ready
+          indexController._updateReady();
         }
       })
     });
+    // otherwise lsten to updatefound event
+   reg.addEventListener('updatefound', function (){
+     reg.installing.addEventListener ('stagechange', function (){
+       if (this.state == 'installed'){
+         
+   });
                           
   
 
