@@ -8,9 +8,12 @@ self.addEentlistener ('fetch', function (event) {
 });
 
 
+// basic registration
+// eample 1
 IndexController.prototype._registerServiceWorker = function() {
   if (!navigator.serviceWorker) return;
 
+// example 2
   navigator.serviceWorker.register('/sw.js').then(function() {
     console.log('Registration worked!');
   }).catch(function() {
@@ -18,11 +21,9 @@ IndexController.prototype._registerServiceWorker = function() {
   });
 };
 // registration of sw needs to be done on indexController where all contructer lives
-/*
-when you register for sw, it returns promise, that promise fulfills with a sw object (which has property and mehod)
 
-*/
-
+//when you register for sw, it returns promise, that promise fulfills with a sw object (which has property and mehod)
+// example 3 - when controlling all sw
  navigator.serviceWorker.register('/sw.js').then(function(reg) {
    reg.unregister();
    reg.update();
@@ -33,8 +34,7 @@ when you register for sw, it returns promise, that promise fulfills with a sw ob
    // these will be point at service worker object or null
    reg.addEventListner('updatefound', function (){
      //reg.installing has changed - becomw a new worker
-   })
-   
+   })   
  });
 
 var sw = reg.installing;
@@ -46,14 +46,13 @@ console.log(sw.state); //... log "installing"
 "redundant"
 */
 
-sw.addEventlistner ('statechange', function(){
-  
+sw.addEventlistener ('statechange', function(){
   //sw.state has changed
 })
 
- navigator.serviceWorker.controller
-// referes to the sw that control this page
-// you wanna tell user when the update ready,
+navigator.serviceWorker.controller
+  // referes to the sw that control this page
+  // you wanna tell user when the update ready,
 
 if (! navigator.serviceWorker.controller)
   // it means this page did not load using service worker loaded from network
@@ -61,9 +60,10 @@ if (! navigator.serviceWorker.controller)
 if (reg.waiting)
    // means update ready and waiting
   indexController._updateReady();
+
 if (reg.installing)
   // means update in progress
-   reg.installing.addEventListner ('statechange', function (){
+   reg.installing.addEventListener ('statechange', function (){
      if (this.state == 'installed){
          //update ready
          }
@@ -81,8 +81,7 @@ if (reg.installing)
     // otherwise lsten to updatefound event
    reg.addEventListener('updatefound', function (){
      reg.installing.addEventListener ('stagechange', function (){
-       if (this.state == 'installed'){
-         
+       if (this.state == 'installed'){        
    });
                           
   
@@ -133,9 +132,6 @@ self.addEventListener('fetch', function(event) {
   );
 });
 
-
-
-
 // more practical way, use var for chache name
 //in practice, use version nacme on cache name as well as file name - i.e. css/main-8gd9.css
 var staticCacheName = 'wittr-static-v2';
@@ -154,3 +150,62 @@ self.addEventListener('activate', function(event) {
     })
   );
 });
+       
+
+// triggering up date
+       
+self.skipWaiting()
+       //sw can call skipWaiting method while it's waiting or installing
+       // it shouldn't queue behild another service worker. should take over strainght away
+       // you wanna call it when user hit the refresh button in our update notification
+       // how do w esend the signal from the page to the waaiting service worker
+    
+    // your page can send message to any sw using postMessage 
+    // from a page
+    reg.installing.postMessage({foo: 'bar});
+
+    // in the service worker:
+    self.addEventlistener ('message', function (event){
+      event.data; // {foo: 'bar}                         
+    }) 
+    // so user clicks the refresh button or send a message to ourservice worker 
+    // telling to it to call skipWaiting
+    
+    navigator.serviveWorker.addEventlistener ('controllerchange', function (){
+    }
+    // the page gets an event when its value changes, meaning a new service worker has taken over.
+    // use this as a signal that we should reload the page                                           
+                                              
+// _updateReady
+// _updateReady is being called whenever there's an update ready to show
+IndexController.prototype.updateReady = function (worker){
+      var toast = this._toastViews.show("New version available", {
+        buttons: ['refresh', 'dismiss']
+      });
+      
+      toast.answer.then(function (answer){
+        if (answer !='refresh') return;
+        // to do tell sw to skipWaiting
+        //check if reg is there
+        reg.installing.postMessage();
+        
+      });
+    };
+ 
+ // on service worker
+ self.addEventListener ('message', finction (){
+      self.skipWaiting()
+ });
+     
+ // on indexController
+  navigator.serviveWorker.addEventlistener ('controllerchange', function (){
+    //reroad is it just return or re-load function
+    }
+  
+                                              
+                                              
+                                              
+                                              
+    
+ 
+       
