@@ -8,7 +8,7 @@ self.addEentlistener ('fetch', function (event) {
 });
 
 
-// basic registration
+// basic registration ------------------------------------------------------------------
 // eample 1
 IndexController.prototype._registerServiceWorker = function() {
   if (!navigator.serviceWorker) return;
@@ -22,7 +22,7 @@ IndexController.prototype._registerServiceWorker = function() {
 };
 // registration of sw needs to be done on indexController where all contructer lives
 
-//when you register for sw, it returns promise, that promise fulfills with a sw object (which has property and mehod)
+// when you register for sw, it returns promise, that promise fulfills with a sw object (which has property and mehod)
 // example 3 - when controlling all sw
  navigator.serviceWorker.register('/sw.js').then(function(reg) {
    reg.unregister();
@@ -41,10 +41,13 @@ var sw = reg.installing;
 console.log(sw.state); //... log "installing"
 /* state can be 
 "installed"
-" activating"
+"activating"
 "activated"
 "redundant"
 */
+
+
+// nortification for UX ------------------------------------------------------------------
 
 sw.addEventlistener ('statechange', function(){
   //sw.state has changed
@@ -63,11 +66,15 @@ if (reg.waiting)
 
 if (reg.installing)
   // means update in progress
-   reg.installing.addEventListener ('statechange', function (){
-     if (this.state == 'installed){
-         //update ready
-         }
-   })
+  if (reg.installing){
+      reg.installing.addEventListener ('statechange', function (){
+        if (this.state == 'installed'){
+          indexController._updateReady();          
+        }
+      });
+      return; // see where return is
+    }
+
     // other wise listen for the update found event
     // that fires we tack the satate ofinstalling worker and if it reached installed state we wil tell user.
     reg.addEventListener ('updatefound', function (){
@@ -78,16 +85,21 @@ if (reg.installing)
         }
       })
     });
-    // otherwise lsten to updatefound event
-   reg.addEventListener('updatefound', function (){
-     reg.installing.addEventListener ('stagechange', function (){
-       if (this.state == 'installed'){        
+ 
+// you could also nake another function on prototype of indexController
+ IndexController.prototype._trackInstalling = function (worker){
+   var indexController = this;
+   worker.addEventListener('statechange', function (){
+     if (worker.state == 'installed'){
+       indexController._updateReady();
+     }
    });
-                          
-  
+ }
+                           
 
+ //-----------------------------------------------------------------------------------------                          
 
-
+// use of fetch and Response
 
 self.addEentlistener ('fetch', function (event) {       // fetcheventlistner
   event.respondWith(                                    // respondWith takes new Resonse or Promise
@@ -102,9 +114,11 @@ self.addEentlistener ('fetch', function (event) {       // fetcheventlistner
   );
   });
   
-
 new Response ('<b>Hello</b> world', {headers: {'Content-Type': 'text/html'}})
 // Response can take data on 2nd param, what can be written is check on dev tool
+
+
+//------------------------------------------------------------------------------------------
 
 self.addEventListener('install', function(event) {          //install event create new cache
   event.waitUntil(
@@ -152,7 +166,7 @@ self.addEventListener('activate', function(event) {
 });
        
 
-// triggering up date
+// triggering update notification -----------------------------------------------------------------------
        
 self.skipWaiting()
        //sw can call skipWaiting method while it's waiting or installing
@@ -160,26 +174,26 @@ self.skipWaiting()
        // you wanna call it when user hit the refresh button in our update notification
        // how do w esend the signal from the page to the waaiting service worker
     
-    // your page can send message to any sw using postMessage 
-    // from a page
-    reg.installing.postMessage({foo: 'bar});
+  // your page can send message to any sw using postMessage 
+  // from a page
+reg.installing.postMessage({foo: 'bar'});
 
-    // in the service worker:
-    self.addEventlistener ('message', function (event){
+  // in the service worker:
+self.addEventlistener ('message', function (event){
       event.data; // {foo: 'bar}                         
-    }) 
-    // so user clicks the refresh button or send a message to ourservice worker 
-    // telling to it to call skipWaiting
+  }) 
+  // so user clicks the refresh button or send a message to ourservice worker 
+  // telling to it to call skipWaiting
     
-    navigator.serviveWorker.addEventlistener ('controllerchange', function (){
+navigator.serviveWorker.addEventlistener ('controllerchange', function (){
     }
-    // the page gets an event when its value changes, meaning a new service worker has taken over.
-    // use this as a signal that we should reload the page                                           
+  // the page gets an event when its value changes, meaning a new service worker has taken over.
+  // use this as a signal that we should reload the page                                           
                                               
 // _updateReady
 // _updateReady is being called whenever there's an update ready to show
-IndexController.prototype.updateReady = function (worker){
-      var toast = this._toastViews.show("New version available", {
+IndexController.prototype._updateReady = function (worker){
+      var toast = this._toastView.show("New version available", {
         buttons: ['refresh', 'dismiss']
       });
       
@@ -203,7 +217,58 @@ IndexController.prototype.updateReady = function (worker){
     }
   
                                               
-                                              
+ //--------copy of sw/index.js-----
+
+
+var staticCacheName = 'wittr-static-v2';
+//tes  
+self.addEventListener('install', function(event) {
+  event.waitUntil(
+    caches.open(staticCacheName).then(function(cache) {
+      return cache.addAll([
+        '/',
+        'js/main.js',
+        'css/main.css',
+        'imgs/icon.png',
+        'https://fonts.gstatic.com/s/roboto/v15/2UX7WLTfW3W8TclTUvlFyQ.woff',
+        'https://fonts.gstatic.com/s/roboto/v15/d-6IYplOFocCacKzxwXSOD8E0i7KZn-EPnyo3HZu7kw.woff'
+      ]);
+    })
+  );
+});
+
+self.addEventListener('activate', function(event) {
+  event.waitUntil(
+    caches.keys().then(function(cacheNames) {
+      return Promise.all(
+        cacheNames.filter(function(cacheName) {
+          return cacheName.startsWith('wittr-') &&
+                 cacheName != staticCacheName;
+        }).map(function(cacheName) {
+          return caches.delete(cacheName);
+        })
+      );
+    })
+  );
+});
+
+self.addEventListener('fetch', function(event) {
+  event.respondWith(
+    caches.match(event.request).then(function(response) {
+      return response || fetch(event.request);
+    })
+  );
+});
+
+// TODO: listen for the "message" event, and call
+// skipWaiting if you get the appropriate message
+
+self.addEventListener ('message', function (event){
+
+  if(event.data.action == 'skipwaiting'){
+    self.skipWaiting();
+  }
+});
                                               
                                               
     
