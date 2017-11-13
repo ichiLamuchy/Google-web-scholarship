@@ -263,12 +263,41 @@ self.addEventListener('fetch', function(event) {
 // TODO: listen for the "message" event, and call
 // skipWaiting if you get the appropriate message
 
+ var requestUrl = new URL (event.request.url);
+
+  if (requestUrl.origin === location.origin){
+      if (requestUrl.pathname === '/'){
+        event.respondWith(caches.match('/skeleton'));
+        return;
+      }
+  }
+
 self.addEventListener ('message', function (event){
 
   if(event.data.action == 'skipwaiting'){
     self.skipWaiting();
   }
 });
+
+
+
+
+/*===============================================================
+
+  deeper understanding of 
+  
+  fetch   --- properties and mothods other than request and response
+  respondWith
+  URL constructer
+  caches - write down each method
+  promise --- udacity course
+  ehrn does it need to be return on 
+
+
+
+
+
+*/===============================================================
                                               
                                               
     
