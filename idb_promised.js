@@ -1,8 +1,114 @@
 // https://github.com/jakearchibald/idb for more details and update
 
+
+
+
 // some random notes
+      
 
 
+//------------It's all returns a promise indtead of request
+
+
+      var dbPromise = idb.open('test-db', 4, function(upgradeDb) {   // idb.open is only plavce you can create and remove db (inc; index)                    
+        switch(upgradeDb.oldVersion) {                               // upgradeDb has property oldVersion
+        case 0:
+          var keyValStore = upgradeDb.createObjectStore('keyval');    // creating object store called keyValStore
+          keyValStore.put("world", "hello");                          // this object store has many mehods and props see below
+        case 1:
+          upgradeDb.createObjectStore('people', { keyPath: 'name' }); // creating another store called people
+        case 2:
+          var peopleStore = upgradeDb.transaction.objectStore('people');  // you have to hold a people object store
+          peopleStore.createIndex('animal', 'favoriteAnimal');            // deferent way of sort
+        
+        // add people to "people"
+        dbPromise.then(function(db) {
+          var tx = db.transaction('people', 'readwrite');     // create transaction (setting ready for actions) for people store, this case - readwrite
+          var peopleStore = tx.objectStore('people');         // then get Object Store here
+
+          peopleStore.put({
+            name: 'Sam Munoz',
+            age: 25,
+            favoriteAnimal: 'dog'
+          });    
+            return tx.complete;
+            }).then(function() {
+              console.log('People added');
+           });
+
+/*
+***************  ObjectStore  ******************
+
+        Properties:
+            name
+            keyPath
+            indexNames
+            autoIncrement
+        Methods:    (returns promise)
+            put
+            add
+            delete
+            clear
+            get
+            getAll
+            getAllKeys
+            count
+            ... & some more
+                    
+**************     db       ******************
+
+        Properties:
+              name
+              version
+              objectStoreNames
+        Methods:
+              close 
+              transaction - as idbDatabase.transaction, but returns a Transaction
+              
+**************   UpgradeDB   ******************
+                As DB, except:
+
+        Properties:
+              transaction - this is a property rather than a method. It's a Transaction representing the upgrade transaction
+              oldVersion - the previous version of the DB seen by the browser, or 0 if it's new
+        Methods:
+              createObjectStore 
+              deleteObjectStor
+
+
+*/
+            //when you need to read databese you need to create a transaction passing Object Store
+            //then call object passing in the name of Object Store YOu want
+            // it's possible to have transaction that uses multiple stores.
+db.Promise.then(function (db){ var tx = db.transaction ('keyval')};
+var keyValStore = tx.objectStore ('keyVal');
+
+
+
+
+
+
+
+/*IDBIndex
+allows access to a subset of data in an IndexedDB database, 
+but uses an index to retrieve the record(s) rather than the primary key. This is sometimes faster than using 
+*/
+      ...
+      case 2: // under open method where you can create idb  
+      var peopleStore = upgradeDb.transaction.objectStore('people');
+      peopleStore.createIndex('animal', 'favoriteAnimal');
+        // creating new index called animal using favourite animal value
+      ...
+      dbPromise.then(function(db) {
+        var tx = db.transaction('people');
+        var peopleStore = tx.objectStore('people');
+        var animalIndex = peopleStore.index('animal');
+        // index method - uses an index to retrieve the record(s) rather than the primary key
+        
+        return animalIndex.getAll('cat');  // it shows only favoriteAnimal : cat
+      }).then(function(people) {
+        console.log('Cat people:', people);
+      });
 
 
 idb.open(name, version, upgradeCallback)
