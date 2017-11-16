@@ -80,10 +80,30 @@
             //when you need to read databese you need to create a transaction passing Object Store
             //then call object passing in the name of Object Store YOu want
             // it's possible to have transaction that uses multiple stores.
-db.Promise.then(function (db){ var tx = db.transaction ('keyval')};
-var keyValStore = tx.objectStore ('keyVal');
+                  db.Promise.then(function (db){ var tx = db.transaction ('keyval')};
+                  var keyValStore = tx.objectStore ('keyVal');
 
+// ******************* Using cursors *******************************
+                    
+dbPromise.then(function(db) {
+  var tx = db.transaction('people');
+  var peopleStore = tx.objectStore('people');
+  var ageIndex = peopleStore.index('age');
 
+  return ageIndex.openCursor();
+}).then(function(cursor) {
+  if (!cursor) return;
+  return cursor.advance(2);
+}).then(function logPerson(cursor) {
+  if (!cursor) return;
+  console.log("Cursored at:", cursor.value.name);
+  // I could also do things like:
+  // cursor.update(newValue) to change the value, or
+  // cursor.delete() to delete this entry
+  return cursor.continue().then(logPerson);
+}).then(function() {
+  console.log('Done cursoring');
+});
 
 
 
