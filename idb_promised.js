@@ -85,24 +85,30 @@
 
 // ******************* Using cursors *******************************
                     
-dbPromise.then(function(db) {
-  var tx = db.transaction('people');
-  var peopleStore = tx.objectStore('people');
-  var ageIndex = peopleStore.index('age');
+IndexController.prototype._onSocketMessage = function(data) {
+  var messages = JSON.parse(data);
 
-  return ageIndex.openCursor();
-}).then(function(cursor) {
-  if (!cursor) return;
-  return cursor.advance(2);
-}).then(function logPerson(cursor) {
-  if (!cursor) return;
-  console.log("Cursored at:", cursor.value.name);
-  // I could also do things like:
-  // cursor.update(newValue) to change the value, or
-  // cursor.delete() to delete this entry
-  return cursor.continue().then(logPerson);
-}).then(function() {
-  console.log('Done cursoring');
+  this._dbPromise.then(function(db) {
+    if (!db) return;
+
+    var tx = db.transaction('wittrs', 'readwrite');
+    var store = tx.objectStore('wittrs');
+    messages.forEach(function(message) {
+      store.put(message);
+    });
+
+    // TODO: keep the newest 30 entries in 'wittrs',
+    // but delete the rest.
+
+    store.index('by-date').openCursor(null, 'prev') // this goes back word
+    .then (function (cursor){
+     return cursor.advance(30);                     // keep first 30
+  }).then (function deleteCursor(cursor){
+    if (!cursor) return;
+    cursor.delete();
+
+    return cursor.continue().then(deleteCursor);    // then call deleteCurser again till !cursor
+  })
 });
 
 
