@@ -13,11 +13,20 @@ idb.open is only place to create and remove db - store to var dbPromise for late
       transaction is to specify only the object stores that you need to access.
 openCursor 
 
+
+Useful --------------------------------------------------------
+
+Array.prototype.includes()          boolean
+caches.open ('nameofCache')         - return promise .then typically some method or condition after
+objectStore.getAll()                - all data to access each key in calue use . - i.e. wittr.photo
+cache.keys()
+cursor.advance(30)                  - get all keys on the cache
+
 */
       
 
 
-//------------It's all returns a promise indtead of request
+//------------It's all returns a promise indtead of request +++ Basic Eample -----------------------------------------------
 
 
       var dbPromise = idb.open('test-db', 4, function(upgradeDb) {   // idb.open is only place you can create and remove db (inc; index)                    
@@ -64,6 +73,7 @@ openCursor
             getAllKeys
             count
             ... & some more
+            
                     
 **************     db       ******************
 
@@ -82,20 +92,62 @@ openCursor
               transaction - this is a property rather than a method. It's a Transaction representing the upgrade transaction
               oldVersion - the previous version of the DB seen by the browser, or 0 if it's new
         Methods:
-              createObjectStore 
-              deleteObjectStor
+              createObjectStore - as idbDatabase.createObjectStore, but returns an ObjectStore
+              deleteObjectStore
+              /// defining the primal key - you need to do when you createObjectStore
+              upgrade.createObjectStore ('people', {keyPath: 'email'});                 //email addres as key (need to be unique)
+              upgrade.createObjectStore ('note', {autoIncrement: true});                // key generater to assign a serial number to each object
+              upgrade.createObjectStore ('logs', {keyPAth: 'id', autoIncrement: true)   // onto ide property
+              
 
+****************  Transaction  *******************
+
+      it's specifying the objectstore
+
+      1.Get data from ide.open
+      2.Open transaction on database
+      3.Open object store on transaction 
+      4.Optioonally open index on object store
+      5.Perform operation on object store or index
+      
+      Properties:
+          complete - a promise. Resolves when transaction completes, rejects if transaction aborts or errors
+          Same as equivalent properties on an instance of IDBTransaction:
+                  objectStoreNames
+                  mode
+      Methods:
+          abort - as idbTransaction.abort
+          objectStore - as idbTransaction.objectStore, but returns an ObjectStore
 
 */
-            //when you need to read databese you need to create a transaction passing Object Store
-            //then call object passing in the name of Object Store You want
-            // it's possible to have transaction that uses multiple stores.
-                  db.Promise.then(function (db){ var tx = db.transaction ('keyval')};
-                  var keyValStore = tx.objectStore ('keyVal');
 
-// ******************* Using cursors *******************************
+//   using open & transaction ----------------------------------------------------------------             
+
+// i.e 1                    
+db.Promise.then(function (db){ var tx = db.transaction ('keyval')};
+var keyValStore = tx.objectStore ('keyVal');
+
+//i.e. 2
+idb.open('keyval-store', 1, upgradeDB => {
+switch (upgradeDB.oldVersion) {
+  case 0:
+    upgradeDB.createObjectStore('keyval');
+}
+}).then(db => {
+const tx = db.transaction('keyval', 'readwrite');
+tx.objectStore('keyval').put('hello', 'world');
+return tx.complete;
+}).then(() => console.log("Done!"));
+
+// when you need to read databese you need to create a transaction passing Object Store
+// then call object passing in the name of Object Store You want
+// it's possible to have transaction that uses multiple stores.
+
                     
-IndexController.prototype._onSocketMessage = function(data) {
+//  Using cursors ----------------------------------------------------------------------
+                    
+
+ IndexController.prototype._onSocketMessage = function(data) {
   var messages = JSON.parse(data);
 
   this._dbPromise.then(function(db) {
@@ -122,188 +174,45 @@ IndexController.prototype._onSocketMessage = function(data) {
 });
 
 
+//  Using idbindex ----------------------------------------------------------------------
+      
+...
+case 2: // under open method where you can create idb  
+var peopleStore = upgradeDb.transaction.objectStore('people');
+peopleStore.createIndex('animal', 'favoriteAnimal');
+  // creating new index called animal using favourite animal value
+...
+dbPromise.then(function(db) {                               // pass the database of dbPromise
+  var tx = db.transaction('people');
+  var peopleStore = tx.objectStore('people');
+  var animalIndex = peopleStore.index('animal');
+  // index method - set an index instead of using the primary key
 
-
-
-/*IDBIndex
-allows access to a subset of data in an IndexedDB database, 
-but uses an index to retrieve the record(s) rather than the primary key. This is sometimes faster than using 
-*/
-      ...
-      case 2: // under open method where you can create idb  
-      var peopleStore = upgradeDb.transaction.objectStore('people');
-      peopleStore.createIndex('animal', 'favoriteAnimal');
-        // creating new index called animal using favourite animal value
-      ...
-      dbPromise.then(function(db) {                               // pass the database of dbPromise
-        var tx = db.transaction('people');
-        var peopleStore = tx.objectStore('people');
-        var animalIndex = peopleStore.index('animal');
-        // index method - set an index instead of using the primary key
-        
-        return animalIndex.getAll('cat');  // it shows only favoriteAnimal : cat
-      }).then(function(people) {
-        console.log('Cat people:', people);
+  return animalIndex.getAll('cat');  // it shows only favoriteAnimal : cat
+}).then(function(people) {
+  console.log('Cat people:', people);
       });
 
-
-idb.open(name, version, upgradeCallback)
+// using objectStore -----------------------------------------------------------------
 
 idb.delete(name)
   //Behaves like indexedDB.deleteDatabase, but returns a promise.
   idb.delete('keyval-store').then(() => console.log('done!'));
   
-// adding email index to the store   
+// adding email index to the store  --------------------------------------------------
+       
 var dbPromise = ide.open ('test-db', 1, function (ungradeDb){
   if (!updateDb.objectStoreNames.contains('ppl')){
     var store = upgradeDb.createObjectStore ('ppl')
     store.createIndex('email', 'email', {unique: true});
   }
 })
- 
+       
+ // code for  cache img ----------------------------------------------------------------
 
-/*supports CRUD (create, retrieve, update, and delete)
-
-  add
-  get
-  put
-  delete
-  getAll
-  cursor  - extract values by index or key
-  
-  you have to wrap the operation in transaction (operations)
-
-*/
-
-
- 
- 
-/*
-DB ---------------------------------------------------------------------
-    Properties:(Same as equivalent properties on an instance of IDBDatabase)
-        name
-        version
-        objectStoreNames
-
-     Methods:
-        close - as idbDatabase.close
-        transaction - as idbDatabase.transaction, but returns a Transaction
-    
-UpgradeDB:  As DB, except---------------------------------------------------
-    Properties:
-        transaction - this is a property rather than a method. It's a Transaction representing the upgrade transaction
-        oldVersion - the previous version of the DB seen by the browser, or 0 if it's new
-
-    Methods:
-        createObjectStore - as idbDatabase.createObjectStore, but returns an ObjectStore
-            /// defining the primal key - you need to do when you createObjectStore
-            upgrade.createObjectStore ('people', {keyPath: 'email'});                 //email addres as key (need to be unique)
-            upgrade.createObjectStore ('note', {autoIncrement: true});                // key generater to assign a serial number to each object
-            upgrade.createObjectStore ('logs', {keyPAth: 'id', autoIncrement: true)   // onto ide property
-        
-        deleteObjectStore - as idbDatabase.deleteObjectStore
-        
- Transaction: ---------------------------------------------------------------
-      1.Get data from ide.open
-      2.Open transaction on database
-      3.Open object store on transaction 
-      4.Optioonally open index on object store
-      5. Perform operation on object store or index
-      
-      Properties:
-          complete - a promise. Resolves when transaction completes, rejects if transaction aborts or errors
-          Same as equivalent properties on an instance of IDBTransaction:
-                  objectStoreNames
-                  mode
-      Methods:
-          abort - as idbTransaction.abort
-          objectStore - as idbTransaction.objectStore, but returns an ObjectStore
-*/
-
-              idb.open('keyval-store', 1, upgradeDB => {
-                  switch (upgradeDB.oldVersion) {
-                    case 0:
-                      upgradeDB.createObjectStore('keyval');
-                  }
-                }).then(db => {
-                  const tx = db.transaction('keyval', 'readwrite');
-                  tx.objectStore('keyval').put('hello', 'world');
-                  return tx.complete;
-                }).then(() => console.log("Done!"));
-      
- // code for  cache img 
- 
-var staticCacheName = 'wittr-static-v7';
-var contentImgsCache = 'wittr-content-imgs';
-var allCaches = [
-  staticCacheName,
-  contentImgsCache
-];
-// store all caches in arr
-
-self.addEventListener('install', function(event) {
-  event.waitUntil(
-    caches.open(staticCacheName).then(function(cache) {
-      return cache.addAll([
-        '/skeleton',
-        'js/main.js',
-        'css/main.css',
-        'imgs/icon.png',
-        'https://fonts.gstatic.com/s/roboto/v15/2UX7WLTfW3W8TclTUvlFyQ.woff',
-        'https://fonts.gstatic.com/s/roboto/v15/d-6IYplOFocCacKzxwXSOD8E0i7KZn-EPnyo3HZu7kw.woff'
-      ]);
-    })
-  );
-});
-
-self.addEventListener('activate', function(event) {
-  event.waitUntil(
-    caches.keys().then(function(cacheNames) {
-      return Promise.all(
-        cacheNames.filter(function(cacheName) {
-          return cacheName.startsWith('wittr-') &&
-                 !allCaches.includes(cacheName);
-        }).map(function(cacheName) {
-          return caches.delete(cacheName);
-        })
-      );
-    })
-  );
-});
-
-self.addEventListener('fetch', function(event) {
-  var requestUrl = new URL(event.request.url);
-
-  if (requestUrl.origin === location.origin) {
-    if (requestUrl.pathname === '/') {
-      event.respondWith(caches.match('/skeleton'));
-      return;
-    }
-    if (requestUrl.pathname.startsWith('/photos/')) {
-      event.respondWith(servePhoto(event.request));
-      return;
-    }
-  }
-
-  event.respondWith(
-    caches.match(event.request).then(function(response) {
-      return response || fetch(event.request);
-    })
-  );
-});
 
 function servePhoto(request) {
-  // Photo urls look like:
-  // /photos/9-8028-7527734776-e1d2bda28e-800px.jpg
-  // But storageUrl has the -800px.jpg bit missing.
-  // Use this url to store & match the image in the cache.
-  // This means you only store one copy of each photo.
   var storageUrl = request.url.replace(/-\d+px\.jpg$/, '');
-
-  // TODO: return images from the "wittr-content-imgs" cache
-  // if they're in there. Otherwise, fetch the images from
-  // the network, put them into the cache, and send it back
-  // to the browser.
   
   return caches.open(contentImgsCache).then(function(cache) {                   // chaches.open to read the specific cache return promise
       return cache.match (storageUrl).then(function(response){                  // look for storageUrl key
@@ -323,3 +232,34 @@ self.addEventListener('message', function(event) {
     self.skipWaiting();
   }
 });
+      
+// code for clean img-cache -----------------------------------------------------
+      
+      
+  IndexController.prototype._cleanImageCache = function() {
+  return this._dbPromise.then(function(db) {                      // _dbPromise is open wittr
+    if (!db) return;
+        
+    var imageKept = [];                                           // array to hold 
+    var tx = db.transaction('wittrs');                            // specyfy wittrs to deal with
+    return tx.objectStore('wittrs').getAll()                      // get all messages using getAll 
+         .then (function (messages){      
+      messages.forEach(function(message){
+        if (message.photo ){                                      // if there is photo name access it by dot notation
+            imageKept.push(message.photo);                        // put it into array
+        }
+      });
+       return caches.open('wittr-content-imgs');
+       
+    }).then (function (cache){
+        return cache.keys().then (function (requests){
+          requests.forEach(function(request){
+            var url = new URL(request.url);
+            if (!imageKept.includes(url.pathname)){
+              cache.delete(request);
+            }          
+        });
+      });
+    });
+  });
+};
