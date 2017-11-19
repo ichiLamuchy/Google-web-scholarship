@@ -233,14 +233,14 @@ UpgradeDB:  As DB, except---------------------------------------------------
       
  // code for  cache img 
  
- var staticCacheName = 'wittr-static-v5';
-var contentImgCache = 'wittr-content-imgs';
-// store all cache in arr
-var allcaches = [
+var staticCacheName = 'wittr-static-v7';
+var contentImgsCache = 'wittr-content-imgs';
+var allCaches = [
   staticCacheName,
-  contentImgCache
+  contentImgsCache
 ];
-//
+// store all caches in arr
+
 self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open(staticCacheName).then(function(cache) {
@@ -262,7 +262,7 @@ self.addEventListener('activate', function(event) {
       return Promise.all(
         cacheNames.filter(function(cacheName) {
           return cacheName.startsWith('wittr-') &&
-                !allcaches.include (cacheName);
+                 !allCaches.includes(cacheName);
         }).map(function(cacheName) {
           return caches.delete(cacheName);
         })
@@ -272,17 +272,17 @@ self.addEventListener('activate', function(event) {
 });
 
 self.addEventListener('fetch', function(event) {
-  var requestUrl = new URL(event.request.url);        // UEL constructor takes url
+  var requestUrl = new URL(event.request.url);
 
-  if (requestUrl.origin === location.origin) {        // URL constructor property origin is the url
+  if (requestUrl.origin === location.origin) {
     if (requestUrl.pathname === '/') {
       event.respondWith(caches.match('/skeleton'));
       return;
     }
-     if (requestUrl.pathname.startWith ('/photo/')){
-       event.respondWith (servePhoto (event.request));  // return the respond
-       return;
-     }
+    if (requestUrl.pathname.startsWith('/photos/')) {
+      event.respondWith(servePhoto(event.request));
+      return;
+    }
   }
 
   event.respondWith(
@@ -292,9 +292,31 @@ self.addEventListener('fetch', function(event) {
   );
 });
 
-function servePhoto(request){
-  var storageUrl = request.url.replace(/-\d+px\.jpeg$/, '') // replace the jpeg
-} 
+function servePhoto(request) {
+  // Photo urls look like:
+  // /photos/9-8028-7527734776-e1d2bda28e-800px.jpg
+  // But storageUrl has the -800px.jpg bit missing.
+  // Use this url to store & match the image in the cache.
+  // This means you only store one copy of each photo.
+  var storageUrl = request.url.replace(/-\d+px\.jpg$/, '');
+
+  // TODO: return images from the "wittr-content-imgs" cache
+  // if they're in there. Otherwise, fetch the images from
+  // the network, put them into the cache, and send it back
+  // to the browser.
+  
+  return caches.open(contentImgsCache).then(function(cache) {                   // chaches.open to read the specific cache return promise
+      return cache.match (storageUrl).then(function(response){                  // look for storageUrl key
+        if (response) return response;                                          // if the val presented return that
+      
+        return fetch (request).then(function(networkresponse){                  // use fetch to work with the respond and back the respond to browser
+        cache.put(storageUrl, networkresponse.clone());                         // make clone pf respont then put it onto the cache
+        return networkresponse;                                                 // return to the respnse to browser
+      });
+    }); 
+  });
+  
+}
 
 self.addEventListener('message', function(event) {
   if (event.data.action === 'skipWaiting') {
