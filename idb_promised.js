@@ -4,13 +4,23 @@
 
 
 // some random notes
+
+/*
+idb.open is only place to create and remove db - store to var dbPromise for later as use db
+      createObjectStore to create Store
+      upgrateDb.oldVersion for swich version of db (ungradeDb is param of fn - 3rd param of open fn)
+      assigned objectStore to var so you can later use objectStore method such as add, put, delete and etc
+      transaction is to specify only the object stores that you need to access.
+openCursor 
+
+*/
       
 
 
 //------------It's all returns a promise indtead of request
 
 
-      var dbPromise = idb.open('test-db', 4, function(upgradeDb) {   // idb.open is only plavce you can create and remove db (inc; index)                    
+      var dbPromise = idb.open('test-db', 4, function(upgradeDb) {   // idb.open is only place you can create and remove db (inc; index)                    
         switch(upgradeDb.oldVersion) {                               // upgradeDb has property oldVersion
         case 0:
           var keyValStore = upgradeDb.createObjectStore('keyval');    // creating object store called keyValStore
@@ -19,12 +29,12 @@
           upgradeDb.createObjectStore('people', { keyPath: 'name' }); // creating another store called people
         case 2:
           var peopleStore = upgradeDb.transaction.objectStore('people');  // you have to hold a people object store
-          peopleStore.createIndex('animal', 'favoriteAnimal');            // deferent way of sort
+          peopleStore.createIndex('animal', 'favoriteAnimal');            // create new index on peopleStore
         
         // add people to "people"
         dbPromise.then(function(db) {
-          var tx = db.transaction('people', 'readwrite');     // create transaction (setting ready for actions) for people store, this case - readwrite
-          var peopleStore = tx.objectStore('people');         // then get Object Store here
+          var tx = db.transaction('people', 'readwrite');     // create transaction (specify object stores) for people store, this case - readwrite
+          var peopleStore = tx.objectStore('people');         // then acess to people Object Store here
 
           peopleStore.put({
             name: 'Sam Munoz',
@@ -78,7 +88,7 @@
 
 */
             //when you need to read databese you need to create a transaction passing Object Store
-            //then call object passing in the name of Object Store YOu want
+            //then call object passing in the name of Object Store You want
             // it's possible to have transaction that uses multiple stores.
                   db.Promise.then(function (db){ var tx = db.transaction ('keyval')};
                   var keyValStore = tx.objectStore ('keyVal');
@@ -100,7 +110,7 @@ IndexController.prototype._onSocketMessage = function(data) {
     // TODO: keep the newest 30 entries in 'wittrs',
     // but delete the rest.
 
-    store.index('by-date').openCursor(null, 'prev') // this goes back word
+    store.index('by-date').openCursor(null, 'prev') // this goes backword
     .then (function (cursor){
      return cursor.advance(30);                     // keep first 30
   }).then (function deleteCursor(cursor){
@@ -125,11 +135,11 @@ but uses an index to retrieve the record(s) rather than the primary key. This is
       peopleStore.createIndex('animal', 'favoriteAnimal');
         // creating new index called animal using favourite animal value
       ...
-      dbPromise.then(function(db) {
+      dbPromise.then(function(db) {                               // pass the database of dbPromise
         var tx = db.transaction('people');
         var peopleStore = tx.objectStore('people');
         var animalIndex = peopleStore.index('animal');
-        // index method - uses an index to retrieve the record(s) rather than the primary key
+        // index method - set an index instead of using the primary key
         
         return animalIndex.getAll('cat');  // it shows only favoriteAnimal : cat
       }).then(function(people) {
