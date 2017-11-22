@@ -2,7 +2,7 @@
 // wittr - SW useful codes
 
 
-
+// the fetch API is replacement of XMLHttpRequest
 self.addEentlistener ('fetch', function (event) {
   console.log (event.request)
 });
