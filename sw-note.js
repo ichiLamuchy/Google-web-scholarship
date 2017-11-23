@@ -7,6 +7,7 @@ self.addEentlistener ('fetch', function (event) {
   console.log (event.request)
 });
 
+// npm run serve on command to start node on this project
 
 // basic registration ------------------------------------------------------------------
 // eample 1
