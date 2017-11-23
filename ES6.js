@@ -5,8 +5,9 @@
 
 /*
  let and const
- let is the same as variable in C. Scorp is {} not omly function
- Variables declared with let can be reassigned, but can’t be redeclared in the same scope
+ let is the same as variable in C. Scorp is block ({}) not omly function
+ let can be reassigned, but can’t be redeclared in the same scope
+ const can't be reassigned in the same scope, but can’t be redeclared in the same scope
  
  Template Literals
  Denoted with backticks ( `` ) with ${expression}  
