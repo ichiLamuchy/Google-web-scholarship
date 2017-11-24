@@ -1,0 +1,23 @@
+unit testing recommendations
+
+An Overview of JavaScript Testing in 2017: 
+    https://medium.com/powtoon-engineering/a-complete-guide-to-testing-javascript-in-2017-a217b4cd5a2a
+    
+recommend Jasmine. review for unit test:
+    https://raygun.com/blog/javascript-unit-testing-frameworks/
+
+JavaScript Unit Testing For Beginners 
+    https://designmodo.com/test-javascript-unit/
+
+course Javascript Testing: Developing Apps with Confidence | Udacity
+    https://www.udacity.com/course/javascript-testing--ud549
+    
+Start with Mocha as it is also used to test Dapps with Solidity
+
+currently javascript community favors jest: 
+    https://facebook.github.io/jest/
+ 
+ cypress.io it's new and different
+ 
+ fun fun function guy you tube
+    https://www.youtube.com/watch?v=Eu35xM76kKY
