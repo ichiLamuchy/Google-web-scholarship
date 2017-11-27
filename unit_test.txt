@@ -3,10 +3,10 @@ unit testing recommendations
 An Overview of JavaScript Testing in 2017: 
     https://medium.com/powtoon-engineering/a-complete-guide-to-testing-javascript-in-2017-a217b4cd5a2a
     
-recommend Jasmine. review for unit test:
+recommend Jasmine. review for unit test: //done
     https://raygun.com/blog/javascript-unit-testing-frameworks/
 
-JavaScript Unit Testing For Beginners 
+JavaScript Unit Testing For Beginners // done
     https://designmodo.com/test-javascript-unit/
 
 course Javascript Testing: Developing Apps with Confidence | Udacity
