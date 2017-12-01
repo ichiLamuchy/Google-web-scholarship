@@ -40,11 +40,12 @@ Symbol - unique identifier, most often used to uniquery identify properties with
                   super must be called before this (obviously)
                   
    Symbols -----------------------------------------------------------------------------------------
-          Symbol() with an optional string as its description
-                  const sym1 = Symbol('apple');
-                  console.log(sym1);   // Symbol(aple)
+         Symbol() with an optional string as its description
+                 const sym1 = Symbol('apple');
+                 console.log(sym1);   // Symbol(aple)
                   
    Iterator Protocol with Symbol ------------------------------------------------------    
+          
           In order for an object to be iterable, it must implement the iterable interface
           iterator method, which is available via the constant [Symbol.iterator]
                   zero argument & return an interator object
@@ -64,6 +65,30 @@ Symbol - unique identifier, most often used to uniquery identify properties with
                   }
           const iterator = array[Symbol.iterator]() // interatoe which allow us to interate
           brilliant explanation at https://medium.freecodecamp.org/demystifying-es6-iterables-iterators-4bdd0b084082
+          
+   Set ---------------------------------------------------------------------------------
+  
+           const games = new Set();
+           console.log(games); //Set {}
+
+           const games = new Set([1, 3, 5, 6, 1]);
+           console.log(games) // Set {1, 3, 5, 6}  
+           When Set is created, any duplication of the entry will be removed
+
+           games.add ('mario')      // add      return Set - no error if you add duplication, just behave as it should
+           games.delete (.mario)    // delete   return boolian no error when you try to delete non-existing element, but you see result on return
+           games.clear()            // delete all
+           game.size                // number of items, the same as length (but Set has no index)
+           months.has('September')  // check existance of the el return boolian
+           .values()                // method to return the values in a Set, return value is a SetIterator object.
+                    The .keys() method will behave the exact same way as the .values() method 
+                    by returning the values of a Set within a new Iterator Object. 
+                    The .keys() method is an alias for the .values() method for similarity with maps
+
+           Sets are built-in iterables
+                    You can use the Set’s default iterator to step through each item in a Set, one by one.
+                    You can use the new for...of loop to loop through each item in a Set.
+            
 */
 
 
