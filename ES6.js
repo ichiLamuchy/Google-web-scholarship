@@ -10,6 +10,10 @@ Symbol - unique identifier, most often used to uniquery identify properties with
 
  iterable protocol
  for...of 
+ 
+ Map & Set interable
+ WeakSet & WeakMap - don't prevent garbage collection
+ Map - object, Set - array
 */
 
 
@@ -88,7 +92,56 @@ Symbol - unique identifier, most often used to uniquery identify properties with
            Sets are built-in iterables
                     You can use the Set’s default iterator to step through each item in a Set, one by one.
                     You can use the new for...of loop to loop through each item in a Set.
-            
+                    
+           Using the SetIterator
+                   Because the .values() method returns a new iterator object (called SetIterator), 
+                   you can store that iterator object in a variable and loop through each item in the Set using .next().
+                   const iterator = months.values();
+                            iterator.next();
+                            Object {value: 'January', done: false}
+           for...of loop
+   
+   WeakSet -------------------------------------------------------------------------------------------
+           WeakSet can be picked by gavage collector when you make obj = null;
+           not interable
+           only object
+           do not have .clear method
+           if you try to add which is not object, it throws error
+           The way you make WeakSet is the same as Set
+                   const student1 = { name: 'James', age: 26, gender: 'male' };
+                   const student2 = { name: 'Julia', age: 27, gender: 'female' };
+                   const student3 = { name: 'Richard', age: 31, gender: 'male' };
+
+                   const roster = new WeakSet([student1, student2, student3]);
+                   console.log(roster);
+           
+   Map ----------------------------------------------------------------------------------------------     
+          const employees = new Map();
+          use set method  (1st arg - key, 2nd arg is value)
+          If you .set() a key-value pair to a Map that already uses the same key, 
+          you won’t receive an error, 
+          but the key-value pair will overwrite what currently exists in the Map. 
+                  
+                  const employees = new Map();
+
+                  employees.set('james.parkes@udacity.com', { 
+                      firstName: 'James',
+                      lastName: 'Parkes',
+                      role: 'Content Developer' 
+                  });
+                  employees.set('julia@udacity.com', {
+                      firstName: 'Julia',
+                      lastName: 'Van Cleve',
+                      role: 'Content Developer'
+                  });
+          .clear() to remove all
+          .delete() a key-value that is not in a Map, you won’t receive an error, 
+          and the Map will remain unchanged.return boolian
+          .has() method to check if a key-value pair exists in your Map by passing it a key.
+          .get()retrieve values from a Map, by passing a key to the .get() method
+          
+          
+          
 */
 
 
