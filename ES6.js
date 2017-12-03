@@ -12,7 +12,7 @@ Symbol - unique identifier, most often used to uniquery identify properties with
  for...of 
  
  Map & Set interable
- WeakSet & WeakMap - don't prevent garbage collection
+ WeakSet & WeakMap - don't prevent garbage collection, no loop
  Map - object, Set - array
 */
 
@@ -134,14 +134,127 @@ Symbol - unique identifier, most often used to uniquery identify properties with
                       lastName: 'Van Cleve',
                       role: 'Content Developer'
                   });
+                  console.log(employees);
+                  // Map {'james.parkes@udacity.com' => Object {...}, 
+                 'julia@udacity.com' => Object {...}, 
+                 'richard@udacity.com' => Object {...}}
+                 
           .clear() to remove all
           .delete() a key-value that is not in a Map, you won’t receive an error, 
           and the Map will remain unchanged.return boolian
           .has() method to check if a key-value pair exists in your Map by passing it a key.
           .get()retrieve values from a Map, by passing a key to the .get() method
           
+          Looping through Maps
+                  1. Map Interator - = .keys(), .values()
+                          let iteratorObjForKeys = members.keys();
+                          iteratorObjForKeys.next();
+                  2. Using a for...of Loop
+                          return is the key-value pair split up into an array
+                          for (const member of members) {
+                             console.log(member);
+                             //['Evelyn', 75.68]
+                             //['Liam', 20.16]
+                             //['Sophia', 0]
+                             //['Marcus', 10.25]
+                          }
+                  3. Using a forEach Loop
+                          members.forEach((key, value) => console.log(key, value));
+                             //'Evelyn' 75.68
+                             //'Liam' 20.16
+                             //'Sophia' 0
+                             //'Marcus' 10.25
           
+  WeakMap---------------------------------------------------------------------------------------------
+  
+          a WeakMap can only contain objects as keys,
+          a WeakMap is not iterable which means it can’t be looped and
+          a WeakMap does not have a .clear() method.
           
+          .set (the same as Map - wm.set(key, value);
+                  onst book1 = { title: 'Pride and Prejudice', author: 'Jane Austen' };
+                  const book2 = { title: 'The Catcher in the Rye', author: 'J.D. Salinger' };
+                  const book3 = { title: 'Gulliver’s Travels', author: 'Jonathan Swift' };
+
+                  const library = new WeakMap();
+                  library.set(book1, true);
+                  library.set(book2, false);
+                  library.set(book3, true);
+
+                  console.log(library);
+
+                  //WeakMap {Object {title: 'Pride and Prejudice', author: 'Jane Austen'} => true, 
+                  Object {title: 'The Catcher in the Rye', author: 'J.D. Salinger'} => false, 
+                  Object {title: 'Gulliver’s Travels', author: 'Jonathan Swift'} => true}
+                  Error will be thrown if you try to add something other than object as key
+  
+  Promises -------------------------------------------------------------------------------------------              
+          Promise constructor function
+          The argument is a function which has args resolve and fail
+                  new Promise(function (resolve, reject) 
+          When success, it calls the resolve method and passthe data we wants to return
+          otherwise use reject (normally to nortify it failed, you can still return)
+                  new Promise(function (resolve, reject) {
+                      window.setTimeout(function createSundae(flavor = 'chocolate') {
+                          const sundae = {};
+                          resolve(sundae);
+                     }, Math.random() * 2000);
+                 });
+         
+         .then() - Promise will immediately return an object. the object has .then() method
+                   it has 2 argument - the first one using return from resolve, 2nd one is return from rehect
+                   those datas as argument on each function
+         
+                 mySundae.then(function(sundae) {
+                         console.log(`Time to eat my delicious ${sundae}`);
+                     }, function(msg) {
+                         console.log(msg);
+                         self.goCry(); // not a real method
+                     });
+                     
+ Proxies-------------------------------------------------------------------------------------------------  
+ 
+         new Proxy();
+         he proxy constructor takes two items:
+                the object that it will be the proxy for
+                handler - an object containing the list of methods it will handle for the proxied obj
+                
+                The simplest way to create a proxy is to provide an object and then an empty handler object
+                        var richard = {status: 'looking for work'};
+                        var agent = new Proxy(richard, {});
+                        agent.status; // returns 'looking for work' not really do naything specil with the proxy
+                
+        handler 
+                the handler object is made up of a methods that will be used for property access.
+                get method (called "trap")
+                        get(target, propName) // target is the object (richard on above i.e)
+                                              // propName is property names of richard
+                         So the get trap will take over whenever any property on the proxy is accessed                               
+                set method
+                         If we want to intercept calls to change properties, then the set trap needs to be used!
+                         used for intercepting code that will change a property.
+                                 const handler = {
+                                     set(target, propName, value) {
+                                         if (propName === 'payRate') { // if the pay is being set, take 15% as commission
+                                             value = value * 0.85;
+                                         }
+                                         target[propName] = value;
+                                      }
+                                      agent.payRate = 1000; // set the actor's pay to $1,000
+                                      agent.payRate; // $850 the actor's actual pay
+                          So set method checks if it see the propName being set, then act upon
+                  there are thirteen handlers
+                          see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/handler
+              
+                  use the new Proxy() constructor
+                           pass the object being proxied as the first item
+                           the second object is a handler object
+                           the handler object is made up of 1 of 13 different "traps"
+                           a trap is a function that will intercept calls to properties let you run code
+                           if a trap is not defined, the default behavior is sent to the target object
+
+                                      
+                         
 */
 
 
