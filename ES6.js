@@ -252,10 +252,72 @@ Symbol - unique identifier, most often used to uniquery identify properties with
                            the handler object is made up of 1 of 13 different "traps"
                            a trap is a function that will intercept calls to properties let you run code
                            if a trap is not defined, the default behavior is sent to the target object
+ 
+  Generators ----------------------------------------------------------------------------------------
+  
+           Pausable functions
+           function* syntax
+           the * indicater that the function is generator
+           When a generator is invoked, it doesn't actually run any of the code inside the function. 
+           Instead, it creates and returns an iterator.
+                   const generatorIterator = getEmployee();
+                   generatorIterator.next();
+           The Yield Keyword inside gor of allow to go further one by one
+                   for (const name of names) {
+                         console.log(name);            // can be switched to 
+                         yield;
+                    }
+           The first call to .next() will start the function and run to the first yield.
+                   const generatorIterator = getEmployee();
+                   let result = generatorIterator.next();
+                   result.value // is "Amanda"
+                   generatorIterator.next().value // is "Diego"
+                   generatorIterator.next().value // is "Farrin"
+ 
+             yield - get data out from generator  (as well as stop)
+             .next() - send data to generator     (as well as pass)
 
-                                      
-                         
-*/
+                      function* displayResponse() {
+                          const response = yield;
+                          console.log(`Your response is "${response}"!`);
+                      }
+
+                      const iterator = displayResponse();
+
+                      iterator.next(); // starts running the generator function
+                      iterator.next('Hello Udacity Student'); // send data into the generator
+                      // the line above logs to the console: Your response is "Hello Udacity Student"!
+          
+          ++another example:
+          
+                      function* getEmployee() {
+                          const names = ['Amanda', 'Diego', 'Farrin', 'James', 'Kagure', 'Kavita', 'Orit', 'Richard'];
+                          const facts = [];
+
+                          for (const name of names) {
+                              // yield *out* each name AND store the returned data into the facts array
+                              facts.push(yield name); 
+                          }
+
+                          return facts;
+                      }
+
+                      const generatorIterator = getEmployee();
+
+                      // get the first name out of the generator
+                      let name = generatorIterator.next().value;
+
+                      // pass data in *and* get the next name
+                      name = generatorIterator.next(`${name} is cool!`).value; 
+
+                      // pass data in *and* get the next name
+                      name = generatorIterator.next(`${name} is awesome!`).value; 
+
+                      // pass data in *and* get the next name
+                      name = generatorIterator.next(`${name} is stupendous!`).value; 
+
+
+     */
 
 
 // Destructuring
