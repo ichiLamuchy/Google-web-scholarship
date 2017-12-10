@@ -1,3 +1,34 @@
+/*
+sw notes
+
+window oject has navigator
+navigator is an object - with property of the browser info you are using on
+
+1:  register  - return promise 
+        navigater.serviceWorker.register('/sw.js').then(function (reg){
+        }
+
+               you can add scope 
+               scope: // this part you need '/myApp/'
+       
+       
+2: Download, Install, Activate
+
+    Download: 
+        The service worker is immediately downloaded 
+        when a user first accesses a service worker–controlled site/page.
+    Install:
+        attempted when the downloaded file is found to be new
+        if first time, it will be activated straight away
+    Activate 
+        if it is not first time, the new sw will be on back ground untill activate
+
+
+
+
+
+
+*/
 
 // wittr - SW useful codes
 
@@ -38,9 +69,12 @@ IndexController.prototype._registerServiceWorker = function() {
    })   
  });
 
+// installing -------------------------------------------------------
+
 var sw = reg.installing;
 console.log(sw.state); //... log "installing"
 /* state can be 
+"installing"
 "installed"
 "activating"
 "activated"
@@ -76,7 +110,7 @@ if (reg.installing)
       return; // see where return is
     }
 
-    // other wise listen for the update found event
+    // otherwise listen for the update found event
     // that fires we tack the satate ofinstalling worker and if it reached installed state we wil tell user.
     reg.addEventListener ('updatefound', function (){
       reg.installing.addEventlistener('statechange', function (){
@@ -102,7 +136,7 @@ if (reg.installing)
 
 // use of fetch and Response
 
-self.addEentlistener ('fetch', function (event) {       // fetcheventlistner
+self.addEentlistener ('fetch', function (event) {       // fetch eventlistner
   event.respondWith(                                    // respondWith takes new Resonse or Promise
     fetch(event.request).then(function(response){       // if fetch succeed return Promise
       if response.status === (404){                     // then the back with respond
