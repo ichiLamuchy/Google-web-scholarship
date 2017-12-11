@@ -7,23 +7,34 @@ navigator is an object - with property of the browser info you are using on
 1:  register  - return promise 
         navigater.serviceWorker.register('/sw.js').then(function (reg){
         }
-
                you can add scope 
                scope: // this part you need '/myApp/'
        
        
 2: Download, Install, Activate
 
+    Your worker script goes through these three stages when you call .register
+    SW receives the events, you can add code below on index.js to see what request being made
+        self.addEventListener ('fetch', function (event){
+                console.log(event.request);
+        });
+
     Download: 
         The service worker is immediately downloaded 
         when a user first accesses a service worker–controlled site/page.
+    
     Install:
         attempted when the downloaded file is found to be new
         if first time, it will be activated straight away
+        if it is not first time, the new sw will be on back ground until activate
+        
     Activate 
-        if it is not first time, the new sw will be on back ground untill activate
+        
+                self.addEventListener('activate', function(event) {
+                        // You're good to go!
+                });
 
-
+    (force reload : shift plus reload)
 
 
 
