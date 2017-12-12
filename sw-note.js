@@ -4,7 +4,7 @@ sw notes
 window oject has navigator
 navigator is an object - with property of the browser info you are using on
 
-1:  register  - return promise 
+1:  register  - return promise, that promise fulfills with a sw object
         navigater.serviceWorker.register('/sw.js').then(function (reg){
         }
                you can add scope 
@@ -26,19 +26,102 @@ navigator is an object - with property of the browser info you are using on
     Install:
         attempted when the downloaded file is found to be new
         if first time, it will be activated straight away
-        if it is not first time, the new sw will be on back ground until activate
+        if it is not the first time, the new sw will be on back ground until activate
+        
+                  self.addEventListener('install', function(event) {          //install event create new cache
+                  event.waitUntil(
+                    caches.open('wittr-static-v1').then(function(cache) {   // open- if not there then wii create one
+                      return cache.addAll([
+                       // list of the files you wanna store in cache
+                      ]}
+                      ...
+        
         
     Activate 
         
                 self.addEventListener('activate', function(event) {
                         // You're good to go!
                 });
+                
+                
+                
+    use of some methods ----------------------------------------------------------------------
+    
+    event.waitUntil()
+        install - wait until cache open
+        activate - wait until the database cleaned (?)
+    
+    RegExp.prototype.test()
+        respond specificly for specific fetch request
+        
+    reg.waiting (return promise of registeration)
+          // means update ready and waiting
+          
+    reg.installing
+          // means update in progress
+          
+    reg.installed 
+        // updated and ready - ? is it the same as waiting? check "TODO"
+    
+        
+    
+    
+                
+    
+    
+    
+    
 
     (force reload : shift plus reload)
 
 
 
 
+*/
+
+/*
+
+side notes --------------------------------------------------
+
+addEventLister ('fetch', function (event){})
+        param on function - second arg of addEventLister is
+        THE even of the first argument
+        fetch has function
+        respondWith 
+        which you can add aostomised responce instead of default ones
+        there is a couple of points to be specific for security reason.
+        (https://developer.mozilla.org/en-US/docs/Web/API/FetchEvent/respondWith)
+        
+fetch - first argument body, second init
+        the body : the path to the resource you want to fetch — and returns a promise 
+        that resolves to the Response to that request (img etc)
+        (https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch)
+        
+        
+
+RegExp.prototype.test()
+        (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test)
+        return boolian
+        useful to check if the specific (type of) file is existing in the path
+        in other word, you can define beghaivior depends on the type of requests,
+        
+        self.addEventListener('fetch', function(event) {
+          if (/\.jpg$/.test(event.request.url)) {
+            event.respondWith(
+              fetch('//www.google.co.uk/logos/…3-hp.gif', {
+                mode: 'no-cors'
+              })
+            );
+          }
+        });
+        
+        
+        
+        
+        
+        
+        
+--------------------------------------------------------------------------------------------------------------
 */
 
 // wittr - SW useful codes
