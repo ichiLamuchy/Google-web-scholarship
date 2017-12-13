@@ -1,15 +1,15 @@
 /*
 sw notes
 
+The ServiceWorker interface inherits properties from its parent, Worker.
+
 window oject has navigator
 navigator is an object - with property of the browser info you are using on
 
-1:  register  - return promise, that promise fulfills with a sw object
-        navigater.serviceWorker.register('/sw.js').then(function (reg){
-        }
-               you can add scope 
-               scope: // this part you need '/myApp/'
-       
+
+
+1: register  - return promise, that promise fulfills with a sw object
+
        
 2: Download, Install, Activate
 
@@ -38,12 +38,25 @@ navigator is an object - with property of the browser info you are using on
         
         
     Activate 
-        
+        Activation can happen - ServiceWorkerGlobalScope.skipWaiting()
                 self.addEventListener('activate', function(event) {
                         // You're good to go!
                 });
                 
-                
+   fetch the request--------------------------------------------------------------------------
+   
+   SW receives the events, you can add code below on index.js to see what request being made
+        self.addEventListener ('fetch', function (event){
+                console.log(event.request);
+        });
+        
+        you can add event.respondWith (new Response ('yes')
+        need set headers if your response is anything other that text/plain
+        you can do it on second param of new Response as object {headers: {"Content-Type": "text/html'}}
+        
+        the respondWith takes promise or Response,
+        so you can pass fetch as it returns promise.
+      
                 
     use of some methods ----------------------------------------------------------------------
     
@@ -62,9 +75,23 @@ navigator is an object - with property of the browser info you are using on
           
     reg.installed 
         // updated and ready - ? is it the same as waiting? check "TODO"
-    
+        // these reg. can asined sw with specific state such as installing, installed or others
         
+    worker lifecycle ---------------------------------------------------
     
+    stage               registration            notes
+    
+    installing          installing              event.waitUntil() passing promse to extend the installing stage until resolved
+                                                self.skipWaiting() directly jump to activation stage without current controlled cliant to close
+    
+    installed           waiting                 waiting for other service worker to be closed
+    
+    activatin           active                  event.waitUntil() - pass promise to extend the activating stage until it's resolved
+                                                self.clients.claim() in the activate handler to start controlling all open client without reloading them
+    
+    activated           active                  the sw now can handle functional events
+    
+    redundant           n/a                     this sw is being replaced with another one
     
                 
     
