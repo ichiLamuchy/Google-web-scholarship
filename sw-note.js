@@ -7,115 +7,164 @@ window oject has navigator
 navigator is an object - with property of the browser info you are using on
 
 
+STEP of SW ****************************************************************************
 
 1: register  - return promise, that promise fulfills with a sw object
+               
+               navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                 reg.unregister();
+                 reg.update();
 
+                 reg.installing;
+                 reg.waiting;
+                 reg.active;
+                 // these will be point at service worker object or null
+                 reg.addEventListner('updatefound', function (){
+                   //reg.installing has changed - becomw a new worker
+                 })   
+               });
        
 2: Download, Install, Activate
 
-    Your worker script goes through these three stages when you call .register
-    SW receives the events, you can add code below on index.js to see what request being made
-        self.addEventListener ('fetch', function (event){
-                console.log(event.request);
-        });
-
-    Download: 
-        The service worker is immediately downloaded 
-        when a user first accesses a service worker–controlled site/page.
+    Your worker script goes through these stages when you call .register
     
-    Install:
-        attempted when the downloaded file is found to be new
-        if first time, it will be activated straight away
-        if it is not the first time, the new sw will be on back ground until activate
+        Download: 
+               The service worker is immediately downloaded 
+               when a user first accesses a service worker–controlled site/page.
+        
+        Install:
+               attempted when the downloaded file is found to be new
+               if first time, it will be activated straight away
+               if it is not the first time, the new sw will be on back ground until activate
+        
+        Activate:
+               Activation to be in control
+        
+        
+    
+    worker lifecycle on each stage ---------------------------------------------------
+    
+    
+    installing          
+              ServiceWorkerRegistration.installing              
+              
+              event.waitUntil() passing promse to extend the installing stage until resolved
+              self.skipWaiting() directly jump to activation stage without current controlled cliant to close
+    
+    installed           
+              ServiceWorkerRegistration.waiting                 
+              waiting for other service worker to be closed
+              
+                            var sw = reg.installing;
+                            console.log(sw.state); //... log "installing"
+                            state can be 
+                            "installing"
+                            "installed"
+                            "activating"
+                            "activated"
+                            "redundant"
+                     
+    
+    activating           
+              ServiceWorkerRegistration.active                  
+              event.waitUntil() - pass promise to extend the activating stage until it's resolved
+              self.clients.claim() in the activate handler to start controlling all open client without reloading them
+                            
+                            ServiceWorkerGlobalScope.skipWaiting()
+                
+                              self.addEventListener('activate', function(event) {
+                                      // You're good to go!
+                              });
+    
+    activated           
+              ServiceWorkerRegistration.active                  
+              the sw now can handle functional events
+    
+    redundant                              
+              this sw is being replaced with another one   
+    
+
+
         
                   self.addEventListener('install', function(event) {          //install event create new cache
                   event.waitUntil(
-                    caches.open('wittr-static-v1').then(function(cache) {   // open- if not there then wii create one
+                    caches.open('wittr-static-v1').then(function(cache) {     // open- if not there then wii create one
                       return cache.addAll([
                        // list of the files you wanna store in cache
                       ]}
                       ...
-        
-        
-    Activate 
-        Activation can happen - ServiceWorkerGlobalScope.skipWaiting()
-                self.addEventListener('activate', function(event) {
-                        // You're good to go!
-                });
+                     
+
                 
-   fetch the request--------------------------------------------------------------------------
+  fetch the request--------------------------------------------------------------------------
    
-   SW receives the events, you can add code below on index.js to see what request being made
+  SW receives the events, you can add code below on index.js to see what request being made
+   
         self.addEventListener ('fetch', function (event){
                 console.log(event.request);
         });
         
-        you can add event.respondWith (new Response ('yes')
-        need set headers if your response is anything other that text/plain
-        you can do it on second param of new Response as object {headers: {"Content-Type": "text/html'}}
+        you can add event.respondWith (new Response ('yes'))
+              need set headers if your response is anything other that text/plain
+              you can do it on second param of new Response as object {headers: {"Content-Type": "text/html'}}
         
-        the respondWith takes promise or Response,
-        so you can pass fetch as it returns promise.
-      
-                
-    use of some methods ----------------------------------------------------------------------
-    
-    event.waitUntil()
-        install - wait until cache open
-        activate - wait until the database cleaned (?)
-    
-    RegExp.prototype.test()
-        respond specificly for specific fetch request
+        respondWith:
+               takes promise or Response,
+               so you can pass fetch as it returns promise.
+               
+               typical usage is
         
-    reg.waiting (return promise of registeration)
-          // means update ready and waiting
-          
-    reg.installing
-          // means update in progress
-          
-    reg.installed 
-        // updated and ready - ? is it the same as waiting? check "TODO"
-        // these reg. can asined sw with specific state such as installing, installed or others
-        
-    worker lifecycle ---------------------------------------------------
+                self.addEentlistener ('fetch', function (event) {       // fetch eventlistner
+                event.respondWith(                                    // respondWith takes new Resonse or Promise
+                  fetch(event.request).then(function(response){       // if fetch succeed return Promise
+                    if response.status === (404){                     // then the back with respond
+                      return new Response ('AAAH');                   // must return
+                    }
+                    return response;                                  // otherwise return what responce is
+                }).catch(function(){
+                  return new Response ("totally failed");
+                })
+                );
+                });      
     
-    stage               registration            notes
-    
-    installing          installing              event.waitUntil() passing promse to extend the installing stage until resolved
-                                                self.skipWaiting() directly jump to activation stage without current controlled cliant to close
-    
-    installed           waiting                 waiting for other service worker to be closed
-    
-    activatin           active                  event.waitUntil() - pass promise to extend the activating stage until it's resolved
-                                                self.clients.claim() in the activate handler to start controlling all open client without reloading them
-    
-    activated           active                  the sw now can handle functional events
-    
-    redundant           n/a                     this sw is being replaced with another one
-    
-                
-    
-    
-    
-    
+event you may listen to -------------------------------------------------------------
 
-    (force reload : shift plus reload)
-
-
-
-
-*/
-
-/*
-
-side notes --------------------------------------------------
+       fetch
+       install
+       activate
+       statechange
+       updatefound
+       
+cashe api -------------------------------------------------------------------------
+       
+       caches - global object
+       caches.open ("nameOfCache").then (function (cache){ //..});  // return promice cache of that name
+       cache.put (request, response);
+       cache.addAll (['foo', 'bar']);
+       
+       cache.mach(request);
+       cashes.mach(request);
+              // typical useage
+              self.addEventListener('fetch', function(event) {
+                event.respondWith(
+                  caches.match(event.request).then(function(response) {
+                    return response || fetch(event.request);
+                  })
+                );
+               });
+       
+       caches.delete(cacheName); // return promises
+       cache.keys(); // get all of your cache name return promises
+       
+       
+side notes -------------------------------------------------------------------------
 
 addEventLister ('fetch', function (event){})
         param on function - second arg of addEventLister is
         THE even of the first argument
         fetch has function
         respondWith 
-        which you can add aostomised responce instead of default ones
+        which you can add costomised responce instead of default ones
         there is a couple of points to be specific for security reason.
         (https://developer.mozilla.org/en-US/docs/Web/API/FetchEvent/respondWith)
         
@@ -123,9 +172,7 @@ fetch - first argument body, second init
         the body : the path to the resource you want to fetch — and returns a promise 
         that resolves to the Response to that request (img etc)
         (https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch)
-        
-        
-
+                
 RegExp.prototype.test()
         (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test)
         return boolian
@@ -144,14 +191,9 @@ RegExp.prototype.test()
         
         
         
-        
-        
-        
-        
---------------------------------------------------------------------------------------------------------------
 */
 
-// wittr - SW useful codes
+// wittr - SW useful codes ****************************************************************************
 
 
 // the fetch API is replacement of XMLHttpRequest built on promises
@@ -162,6 +204,7 @@ self.addEentlistener ('fetch', function (event) {
 // npm run serve on command to start node on this project
 
 // basic registration ------------------------------------------------------------------
+
 // eample 1
 IndexController.prototype._registerServiceWorker = function() {
   if (!navigator.serviceWorker) return;
@@ -190,17 +233,6 @@ IndexController.prototype._registerServiceWorker = function() {
    })   
  });
 
-// installing -------------------------------------------------------
-
-var sw = reg.installing;
-console.log(sw.state); //... log "installing"
-/* state can be 
-"installing"
-"installed"
-"activating"
-"activated"
-"redundant"
-*/
 
 
 // nortification for UX ------------------------------------------------------------------
@@ -232,7 +264,7 @@ if (reg.installing)
     }
 
     // otherwise listen for the update found event
-    // that fires we tack the satate ofinstalling worker and if it reached installed state we wil tell user.
+    // that fires we tack the satate of installing worker and if it reached installed state we wil tell user.
     reg.addEventListener ('updatefound', function (){
       reg.installing.addEventlistener('statechange', function (){
         if (this.state == 'installed'){
@@ -251,30 +283,9 @@ if (reg.installing)
      }
    });
  }
-                           
+                       
 
- //-----------------------------------------------------------------------------------------                          
-
-// use of fetch and Response
-
-self.addEentlistener ('fetch', function (event) {       // fetch eventlistner
-  event.respondWith(                                    // respondWith takes new Resonse or Promise
-    fetch(event.request).then(function(response){       // if fetch succeed return Promise
-      if response.status === (404){                     // then the back with respond
-        return new Response ('AAAH');                   // must return
-      }
-      return response;
-  }).catch(function(){
-    return new Response ("totally failed");
-  })
-  );
-  });
-  
-new Response ('<b>Hello</b> world', {headers: {'Content-Type': 'text/html'}})
-// Response can take data on 2nd param, what can be written is check on dev tool
-
-
-//------------------------------------------------------------------------------------------
+// creating cache in installing ------------------------------------------------------------------------------------------
 
 self.addEventListener('install', function(event) {          //install event create new cache
   event.waitUntil(
@@ -440,14 +451,6 @@ self.addEventListener ('message', function (event){
 
 /*===============================================================
 
-  deeper understanding of 
-  
-  fetch   --- properties and mothods other than request and response
-  respondWith
-  URL constructer
-  caches - write down each method
-  promise --- udacity course
-  ehrn does it need to be return on 
 
 
 
