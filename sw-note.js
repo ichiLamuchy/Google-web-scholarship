@@ -135,7 +135,7 @@ event you may listen to --------------------------------------------------------
        statechange
        updatefound
        
-cashe api -------------------------------------------------------------------------
+cache api -------------------------------------------------------------------------
        
        caches - global object
        caches.open ("nameOfCache").then (function (cache){ //..});  // return promice cache of that name
@@ -161,9 +161,9 @@ side notes ---------------------------------------------------------------------
 
 addEventLister ('fetch', function (event){})
         param on function - second arg of addEventLister is
-        THE even of the first argument
+        The event of the first argument
         fetch has function
-        respondWith 
+          respondWith 
         which you can add costomised responce instead of default ones
         there is a couple of points to be specific for security reason.
         (https://developer.mozilla.org/en-US/docs/Web/API/FetchEvent/respondWith)
@@ -187,9 +187,7 @@ RegExp.prototype.test()
               })
             );
           }
-        });
-        
-        
+        });     
         
 */
 
