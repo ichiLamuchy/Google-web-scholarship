@@ -1,17 +1,68 @@
-// https://github.com/jakearchibald/idb for more details and update
-
-
-
-
-// some random notes
-
 /*
+======================================================================
+// https://github.com/jakearchibald/idb 
+for more details and update
+======================================================================
+
+
+
+idb can have multiple objectStore. 
+
+
+1. <<Promise>> open & upgrade idb
+
+        1-2. open idb by idb.open ()
+                // var dbPromise　= idb.open ()
+                // idb.open(name, version, upgradeCallback)
+    
+        1-2. create objectStore by createObjectStore() 
+                // updateDb.createObjectStore() 
+                // updateDb is param name of call back from ide.open
+                // it's a variable point at the 1st param of idb.open (name of the db)
+        1-3. use any method on the object store, i.e. objectStore1.put()
+            1-3-b. if 
+
+        done});
+    
+2. <<Promise>> Any transactions on data base (idb)
+    
+        call promise to have whole data base,
+        Then create transaction property with the opject store you like,
+        call the object store to assign to a value
+        now you can do whatever you like by using objectStore method.
+        all these just live in promise, just the way of data transaction
+    
+        2-1. dbPromise.then() to start with
+
+        2-2. create transaction(property) and passing the opjectStore by db.transaction()
+                // var tx = db.transaction ('keyval');
+                // db is param that point at dbPromise          
+                // you can pass multiple objectStore here
+
+        2-3. Then call objectStore passing in the name of ObjectStore
+                // var keyVAl = tx.objectStore('keyval')
+
+        2-4. returns a promise which resolved to the value you like
+                // i.e. return keyValStore.get()
+
+        2-5. then(function(val){// do whatever you like});
+        
+            2-5-1. if the method is right method, then make sure you use
+                    return txcomplete;
+                    }).then
+                    to carry on what need to be as you never know if it has been completed
+         done });   
+    
+--------------------
+some random notes
+---------------------
 idb.open is only place to create and remove db - store to var dbPromise for later as use db
       createObjectStore to create Store
       upgrateDb.oldVersion for swich version of db (ungradeDb is param of fn - 3rd param of open fn)
       assigned objectStore to var so you can later use objectStore method such as add, put, delete and etc
       transaction is to specify only the object stores that you need to access.
 openCursor 
+
 
 
 Useful --------------------------------------------------------
@@ -85,7 +136,7 @@ cursor.advance(30)                  - get all keys on the cache
               close 
               transaction - as idbDatabase.transaction, but returns a Transaction
               
-**************   UpgradeDB   ******************
+**************   upgradeDB   ******************
                 As DB, except:
 
         Properties:
