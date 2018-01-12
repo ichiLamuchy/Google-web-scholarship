@@ -68,11 +68,6 @@ idb can have multiple objectStore.
     
 
 
-
-*/
-      
-
-/*
 ***************  ObjectStore  ******************
 
         Properties:
@@ -136,6 +131,7 @@ idb can have multiple objectStore.
           abort - as idbTransaction.abort
           objectStore - as idbTransaction.objectStore, but returns an ObjectStore
 
+
 *******************  Index  **********************
 
         Properties:
@@ -161,6 +157,7 @@ idb can have multiple objectStore.
                 iterateCursor - as objectStore.iterateCursor but over the index
                 iterateKeyCursor - as objectStore.iterateKeyCursor but over the index
                 
+                
 *******************  Cursor  **********************
         
         Properties:
@@ -185,26 +182,30 @@ idb can have multiple objectStore.
 --------------------
 some random notes
 ---------------------
-idb.open is only place to create and remove db - store to var dbPromise for later as use db
-      createObjectStore to create Store
-      upgrateDb.oldVersion for swich version of db (ungradeDb is param of fn - 3rd param of open fn)
-      assigned objectStore to var so you can later use objectStore method such as add, put, delete and etc
-      transaction is to specify only the object stores that you need to access.
+        idb.open is only place to create and remove db - store to var dbPromise for later as use db
+              createObjectStore to create Store
+              upgrateDb.oldVersion for swich version of db (ungradeDb is param of fn - 3rd param of open fn)
+              assigned objectStore to var so you can later use objectStore method such as add, put, delete and etc
+              transaction is to specify only the object stores that you need to access.
       
 
-Array.prototype.includes()          boolean
-caches.open ('nameofCache')         - return promise .then typically some method or condition after
-objectStore.getAll()                - all data to access each key in calue use . - i.e. wittr.photo
-upgradeDb.createObjectStore('storeName')        - create objectStore
-upgradeDb.transaction.objectStore('people');    - ready for transaction if you have created objectStore
-peopleStore.createIndex('animal', 'favoriteAnimal');  - after above code
+        Array.prototype.includes()          boolean
+        caches.open ('nameofCache')         - return promise .then typically some method or condition after
+        objectStore.getAll()                - all data to access each key in calue use . - i.e. wittr.photo
+        upgradeDb.createObjectStore('storeName')        - create objectStore
+        upgradeDb.transaction.objectStore('people');    - ready for transaction if you have created objectStore
+        peopleStore.createIndex('animal', 'favoriteAnimal');  - after above code
 
-db.transaction('storeName')         - create transaction
-tx.objectStore('keyval')            - call the objectStore
-cache.keys()
-cursor.advance(30)                  - get all keys on the cache
+        var tx = db.transaction('storeName');         - create transaction
+        var peopleStore = tx.objectStore('people');            - call the objectStore
+        var peopleStore = upgradeDb.transaction.objectStore('people');
+        peopleStore.createIndex('animal', 'favoriteAnimal'); .
+        
+        var index = upGrade.createOpjectStore('people').tramsaction.objectStore('people').
+        cache.keys()
+        cursor.advance(30)                  - leave first 30
 
-peopleStore.index('age')            - if age indexCreate has called then you can call index on 
+        peopleStore.index('age')            - if age indexCreate has called then you can call index on 
 */
 
 
