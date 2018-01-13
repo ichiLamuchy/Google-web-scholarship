@@ -182,6 +182,7 @@ idb can have multiple objectStore.
 --------------------
 some random notes
 ---------------------
+
         idb.open is only place to create and remove db - store to var dbPromise for later as use db
               createObjectStore to create Store
               upgrateDb.oldVersion for swich version of db (ungradeDb is param of fn - 3rd param of open fn)
@@ -192,20 +193,25 @@ some random notes
         Array.prototype.includes()          boolean
         caches.open ('nameofCache')         - return promise .then typically some method or condition after
         objectStore.getAll()                - all data to access each key in calue use . - i.e. wittr.photo
-        upgradeDb.createObjectStore('storeName')        - create objectStore
-        upgradeDb.transaction.objectStore('people');    - ready for transaction if you have created objectStore
-        peopleStore.createIndex('animal', 'favoriteAnimal');  - after above code
-
-        var tx = db.transaction('storeName');         - create transaction
-        var peopleStore = tx.objectStore('people');            - call the objectStore
-        var peopleStore = upgradeDb.transaction.objectStore('people');
-        peopleStore.createIndex('animal', 'favoriteAnimal'); .
         
-        var index = upGrade.createOpjectStore('people').tramsaction.objectStore('people').
+        upgradeDb.createObjectStore('storeName')                         - create objectStore
+        
+        var peopleStore = upgradeDb.transaction.objectStore('people');   - ready for transaction if you have created objectStore
+        peopleStore.createIndex('animal', 'favoriteAnimal');             - after above code
+
+        var tx = db.transaction('witters');                 - create transaction
+        var witterStore = tx.objectStore('witters');        - call the objectStore
+        var index = witterStore.index('by-date')
+        
+        var index = db.transaction('witters').objectStore('witters').indexStore('by-date'); // this is the same as block above
+        
         cache.keys()
         cursor.advance(30)                  - leave first 30
 
         peopleStore.index('age')            - if age indexCreate has called then you can call index on 
+        
+        you can read the body of response only once.
+        cache.put(request, response.clone())        - you can clone request when you need send response to more than one place
 */
 
 
