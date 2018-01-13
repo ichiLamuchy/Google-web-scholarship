@@ -3,8 +3,39 @@
 // https://github.com/jakearchibald/idb 
 for more details and update
 ======================================================================
+      
+      Basic steps:
 
+      1.Get data from ide.open                  - step 1
+      2.Open transaction on database            - step 2
+      3.Open object store on transaction        - step 2
+      4.Optionally open index on object store
+      5.Perform operation on object store or index
 
+    
+    working with cache
+    (sw state)
+     install - build cache :add initial resauce
+     action  - update cache
+     fetch   - retribe from cache, network or database
+     
+     serving file from cache
+     1. cache falling back to network
+            This is off line first
+            if cache fail then go network
+     2. network falling back to cache
+            not very good when connection is slow
+     3. cache then network
+            better solution!!!
+            requests are sent from the page simultaneously
+            to the main JavaScript, not the service worker
+            2 requests - one to cache, one to network
+            
+            cache first then update the page when and if
+            the network data arrives
+     4. Generic fall back
+     
+    
 
 idb can have multiple objectStore. 
 
@@ -26,11 +57,34 @@ idb can have multiple objectStore.
                         use upgradeDb.transaction.objectStore() to call the objectStore
                         It is the same way as 2-2 but this transaction is PROPERTY
                         // var peopleStore = upgradeDb.transaction.objectStore('people');
-                        // peopleStore.createIndex('animal', 'favoriteAnimal');   
+                        // peopleStore.createIndex('animal', 'favoriteAnimal'); 
+                        // peopleStore.createIndex('email', 'email', {unique:true});
 
         done});
+        
+        ---------------------------------
+        how to define the primary key
+        https://www.youtube.com/watch?v=_idFGKbYzqU
+        ---------------------------------   
+            upgrade.createObjectStore ('people', {keyPath: 'email'});                 //email addres as key (need to be unique)
+            upgrade.createObjectStore ('note', {autoIncrement: true});                // key generater to assign a serial number to each object
+            upgrade.createObjectStore ('logs', {keyPAth: 'id', autoIncrement: true)   // onto ide property
+        
+        -------------------------
+        Defining indexes example
+        -------------------------
+        var dbPromise = idb.open("dataBase_1", 1, function (upgradeDb){
+            var peoplleStore = upgradeDb.createObjectStore('people');
+            peopleStore.createIndex('email', 'email', {unique:true});
+        
+        });
+        
+        
+        
+        
     
 2. <<Promise>> Any transactions on data base (idb)
+        transaction is wrapper around group of operation
     
         call promise to have whole data base,
         Then create transaction() of the object store you like,
@@ -53,7 +107,8 @@ idb can have multiple objectStore.
 
         2-5. then(function(val){// do whatever you like});
         
-            2-5-1. if the method is right method, then make sure you use
+            2-5-1. check if the method is right method, then make sure you use
+                    for write method 
                     return tx.complete;
                     }).then
                     to carry on what need to be as you never know if it has been completed
@@ -106,21 +161,10 @@ idb can have multiple objectStore.
         Methods:
             createObjectStore - as idbDatabase.createObjectStore, but returns an ObjectStore
             deleteObjectStore
-            /// defining the primal key - you need to do when you createObjectStore
-            upgrade.createObjectStore ('people', {keyPath: 'email'});                 //email addres as key (need to be unique)
-            upgrade.createObjectStore ('note', {autoIncrement: true});                // key generater to assign a serial number to each object
-            upgrade.createObjectStore ('logs', {keyPAth: 'id', autoIncrement: true)   // onto ide property
+
               
 
 ****************  Transaction  *******************
-
-      it's specifying the objectstore
-
-      1.Get data from ide.open
-      2.Open transaction on database
-      3.Open object store on transaction 
-      4.Optionally open index on object store
-      5.Perform operation on object store or index
       
       Properties:
           complete - a promise. Resolves when transaction completes, rejects if transaction aborts or errors
