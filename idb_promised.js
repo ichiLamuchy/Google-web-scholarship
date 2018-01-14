@@ -52,7 +52,7 @@ idb can have multiple objectStore.
                 // the function gets a special upgradeDb param which we use to define the database
         
         1-3. use any method on the object store, i.e. objectStore_1.put()
-            1-3-b. createIndex 
+            1-3-1. createIndex 
                         if you have already called creatObjectStore
                         use upgradeDb.transaction.objectStore() to call the objectStore
                         It is the same way as 2-2 but this transaction is PROPERTY
