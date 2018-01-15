@@ -161,7 +161,15 @@ IndexController.prototype._cleanImageCache = function() {
 
     // TODO: open the 'wittr' object store, get all the messages,
     // gather all the photo urls.
-    //
+    //  photo url looks like /photo/56fswrf.jpg
+    
+    //1. idb witters have been updated by the function below using curser
+    //    so anything left over is image / photo on cache as cache does not killed automatically
+    //2.  use transition("witters"), then use getAll to access all the message, access message.photo
+    //    to access image then store into array keepImg[]
+    //3. return open.cache
+    //4. .then() if each one of keys are not matched delete.
+    
     // Open the 'wittr-content-imgs' cache, and delete any entry
     // that you no longer need.
   });
