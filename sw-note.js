@@ -1,5 +1,7 @@
 /*
 sw notes
+------------------------------------------------------
+npm run serve on command to start node on this project
 
 The ServiceWorker interface inherits properties from its parent, Worker.
 
