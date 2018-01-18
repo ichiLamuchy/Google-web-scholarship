@@ -1,15 +1,24 @@
-
+/*
 ==========================================
 Udacity JavaScript Promises
 https://classroom.udacity.com/courses/ud898
 ==========================================
         
-        /*
-        ready() return promise
+for exoplanet-explorer project ++++++++
+		work on app/scripts/app.js
+
+		Serve / watch
+			gulp serve
++++++++++++++++++++++++++++++++++++++++
+
+
+basic promise example code --------------------------------------------
+        
+		ready() return promise
         make listner checkstate() function
         addEventListener(type of event , listener)
         once resolved returned use .then to check the test function 
-        */
+*/
         
     function ready() {                                      
 
