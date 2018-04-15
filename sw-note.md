@@ -410,7 +410,7 @@ nortification for UX
               return cacheName.startsWith('wittr-') &&
                      cacheName != staticCacheName;
             }).map(function(cacheName) {
-              return caches.delete(cacheName);
+              return cache.delete(cacheName);
             })
           );
         })
@@ -433,7 +433,11 @@ nortification for UX
             return;
           }
       }
-
+    
+        Your page can send a message to SW using postMessage
+        You can listen for message in the SW using message event
+        Ask skipwaiting
+    
     self.addEventListener ('message', function (event){
 
       if(event.data.action == 'skipwaiting'){
